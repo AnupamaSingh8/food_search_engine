@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniGoogle - Best Food, Pizza & Canteens Near You | Ratings & Photos</title>
+  <meta name="description" content="MiniGoogle Food Radar - Search any area for the best pizza, biryani, vada pav, misal, and college canteens with verified ratings and storefront photos.">
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Three.js (WebGL Visual Engine) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Application CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       1. NAVIGATION BAR
+       ========================================================================== -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <!-- MiniGoogle Logo -->
+      <a href="#" class="brand-logo" onclick="window.location.reload()">
+        <div class="logo-icon-3d">🍕</div>
+        <div class="brand-text">
+          <span class="g-m">M</span>
+          <span class="g-i1">i</span>
+          <span class="g-n">n</span>
+          <span class="g-i2">i</span>
+          <span class="g-cap-g">G</span>
+          <span class="g-o1">o</span>
+          <span class="g-o2">o</span>
+          <span class="g-g">g</span>
+          <span class="g-l">l</span>
+          <span class="g-e">e</span>
+          <span class="brand-badge">FOOD RADAR</span>
+        </div>
+      </a>
+
+      <!-- Location Pill & Quick Actions -->
+      <div class="nav-actions">
+        <button class="location-pill" id="location-pill" title="Click to change location">
+          <span class="pulse-dot"></span>
+          <span id="current-location-text">📍 FC Road, Pune</span>
+        </button>
+
+        <button class="icon-btn" id="sound-toggle-btn" title="Toggle Sound FX">
+          🔊
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       2. HERO SECTION & INTERACTIVE FOOD CANVAS
+       ========================================================================== -->
+  <main class="container">
+    <section class="hero-section">
+      <div class="hero-grid">
+        <!-- Left: Search Engine Info -->
+        <div class="hero-content">
+          <div class="hero-tag">
+            <span>🔥 Hyper-Local Food Engine</span>
+          </div>
+
+          <h1 class="hero-title">
+            Apne Aas-Pass Ka <br>
+            <span class="gradient-text">Best Khana & Real Ratings</span> Khoje!
+          </h1>
+
+          <p class="hero-desc">
+            MiniGoogle local radar se apne kisi bhi area ka best pizza, biryani, canteen chai, street vada pav, aur misal pav khoje — verified ratings aur real photos ke sath.
+          </p>
+
+          <!-- MiniGoogle Smart Search Bar -->
+          <div class="search-container">
+            <div class="search-box-3d">
+              <span class="search-icon">🔍</span>
+              <input 
+                type="text" 
+                id="search-input" 
+                class="search-input" 
+                placeholder="Search food or area (e.g. Pizza, Biryani, Vada Pav, Misal, Chai, FC Road, Camp)..."
+                autocomplete="off"
+              />
+              <div class="search-actions">
+                <button class="gps-btn" id="gps-btn" title="Use Live GPS">
+                  <span>📍 Near Me</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Category Filter Chips -->
+            <div class="chips-scroll">
+              <button class="chip-btn active" data-category="all">✨ All Best Spots</button>
+              <button class="chip-btn" data-category="pizza">🍕 Best Pizza</button>
+              <button class="chip-btn" data-category="biryani">🍗 Biryani & Mughlai</button>
+              <button class="chip-btn" data-category="misal-vadapav">🌶️ Vada Pav & Misal</button>
+              <button class="chip-btn" data-category="canteen">🎓 College Canteen & Chai</button>
+              <button class="chip-btn" data-category="dosa-south">🥞 Dosa & South Indian</button>
+              <button class="chip-btn" data-category="burger">🍔 Burgers & Fast Food</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Interactive WebGL Canvas -->
+        <div class="canvas-wrapper">
+          <div id="pizza-canvas-container"></div>
+          <div class="canvas-hint">
+            <span>👆 Drag cursor to rotate & interact • Click to spin!</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Mode Switcher Tabs -->
+    <div class="mode-tabs-container">
+      <div class="mode-tabs-bar">
+        <button class="mode-tab-btn active" id="tab-3d-places" onclick="window.appInstance.switchViewMode('places')">
+          🍕 Nearby Food & Pizza Radar
+        </button>
+        <button class="mode-tab-btn" id="tab-web-pagerank" onclick="window.appInstance.switchViewMode('web')">
+          🌐 MiniGoogle Web Index (PageRank)
+        </button>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         3. PROXIMITY RADAR STRIP & STATS
+         ========================================================================== -->
+    <section class="radar-strip" id="radar-section">
+      <div class="radar-left">
+        <div class="radar-circle-visual">
+          <div class="radar-center-blip"></div>
+        </div>
+        <div class="radar-meta">
+          <h4>MiniGoogle Local Proximity Radar Active</h4>
+          <p>Showing places sorted by real reviews, food photos, and live distance.</p>
+        </div>
+      </div>
+
+      <div class="radar-stats">
+        <div class="stat-item">
+          <div class="stat-val" id="stat-total-count">12</div>
+          <div class="stat-label">Verified Spots</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" id="stat-top-rated">4.9 ★</div>
+          <div class="stat-label">Top Rating</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" id="stat-closest-dist">0.3 km</div>
+          <div class="stat-label">Nearest Distance</div>
+        </div>
+        <div class="stat-item">
+          <select id="sort-select" class="sort-select" title="Sort by">
+            <option value="rating">★ Highest Rating</option>
+            <option value="distance">📍 Closest Distance</option>
+            <option value="price_asc">💰 Budget Friendly (Low ₹)</option>
+            <option value="reviews">🔥 Most Popular (Reviews)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         4. RESULTS LIST & CARDS GRID
+         ========================================================================== -->
+    <section id="places-section">
+      <div class="results-header">
+        <h2 class="results-count">
+          Showing <span id="results-count-number">12</span> Best Food Spots in Your Area
+        </h2>
+      </div>
+
+      <!-- Dynamic Cards Injected by app.js -->
+      <div class="pizza-grid" id="pizza-grid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         4B. WEBPAGE SEARCH RESULTS (PAGERANK ENGINE)
+         ========================================================================== -->
+    <section id="web-section" style="display: none; padding-top: 10px;">
+      <div class="results-header" style="max-width: 900px; margin: 0 auto 24px;">
+        <h2 class="results-count">
+          MiniGoogle Indexed Web Results (<span id="web-results-count">6</span> pages)
+        </h2>
+        <span style="font-size: 13px; color: #10b981; font-weight: 600;">⚡ PageRank Algorithm Enabled</span>
+      </div>
+
+      <div class="web-results-container" id="web-results-container">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ==========================================================================
+       5. DETAILED MODAL & PHOTO GALLERY
+       ========================================================================== -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-3d-box">
+      <button class="modal-close-btn" id="modal-close-btn" title="Close">✕</button>
+
+      <!-- Main Photo Hero & Thumbnail Switcher -->
+      <div class="modal-gallery-hero">
+        <img src="" alt="Place Preview" id="modal-main-img" class="gallery-main-img">
+        <div class="gallery-thumbnails" id="modal-thumbnails">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <div class="modal-content-body">
+        <div class="modal-title-bar">
+          <div>
+            <h2 class="modal-place-name" id="modal-title">Restaurant Name</h2>
+            <div class="modal-meta-row" id="modal-meta">
+              <!-- Meta Injected -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Rating Matrix Breakdown -->
+        <div class="rating-matrix">
+          <div class="matrix-item">
+            <div class="matrix-score">4.9 ★</div>
+            <div class="matrix-label">Taste & Flavor</div>
+          </div>
+          <div class="matrix-item">
+            <div class="matrix-score">4.8 ★</div>
+            <div class="matrix-label">Freshness & Crust</div>
+          </div>
+          <div class="matrix-item">
+            <div class="matrix-score">5.0 ★</div>
+            <div class="matrix-label">Portion & Quality</div>
+          </div>
+          <div class="matrix-item">
+            <div class="matrix-score">4.9 ★</div>
+            <div class="matrix-label">Value For Money</div>
+          </div>
+        </div>
+
+        <!-- Signature Menu Highlights -->
+        <div>
+          <h3 class="modal-section-title">Specialty Menu Highlights</h3>
+          <div class="menu-list" id="modal-menu-list" style="margin-top: 14px;">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Customer Reviews -->
+        <div>
+          <h3 class="modal-section-title">Verified Customer Reviews</h3>
+          <div class="reviews-container" id="modal-reviews-list" style="margin-top: 14px;">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Modal Action Footer -->
+        <div style="display: flex; gap: 14px; margin-top: 10px;">
+          <a 
+            id="modal-directions-btn" 
+            href="#" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="btn-details" 
+            style="text-decoration: none; padding: 12px 20px; font-size: 14px; text-align: center;"
+          >
+            🗺️ Open GPS Live Route
+          </a>
+          <a 
+            id="modal-call-btn" 
+            href="#" 
+            class="btn-details" 
+            style="text-decoration: none; padding: 12px 20px; font-size: 14px; text-align: center; background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #10b981;"
+          >
+            📞 Call & Book Order
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       6. FOOTER
+       ========================================================================== -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="brand-text">
+        <span class="g-m">M</span>
+        <span class="g-i1">i</span>
+        <span class="g-n">n</span>
+        <span class="g-i2">i</span>
+        <span class="g-cap-g">G</span>
+        <span class="g-o1">o</span>
+        <span class="g-o2">o</span>
+        <span class="g-g">g</span>
+        <span class="g-l">l</span>
+        <span class="g-e">e</span>
+      </div>
+      <p class="footer-text">
+        Next-Generation Local Food Finder • High Contrast • 60 FPS Smooth Performance
+      </p>
+      <div class="footer-tags">
+        <span>✨ Interactive Visualizer</span>
+        <span>📍 Live GPS Tracking</span>
+        <span>🍕 Real Photos & Ratings</span>
+        <span>⚡ Hardware Accelerated</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="pizza-3d.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
